@@ -5,7 +5,7 @@ class XMLUtil {
 		$o = new DOMDocument('1.0');
 		$o->preserveWhiteSpace = FALSE;
 		$o->formatOutput = TRUE;
-		$o->loadXML($simpleXml->asXML());
+		$o->loadXML($sXML);
 		return $o->saveXML();
 	}
 }
