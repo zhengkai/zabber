@@ -69,6 +69,7 @@ function xmlize($data, $WHITE=1, $encoding='UTF-8') {
  */
 
 function xml_depth($vals, &$i) {
+
 	$children = array();
 
 	if (isset($vals[$i]['value'])) {
@@ -158,4 +159,3 @@ function traverse_xmlize($array, $arrName = "array", $level = 0) {
 	}
 	return 1;
 }
-?>

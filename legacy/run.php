@@ -2,20 +2,19 @@
 <?PHP
 chdir(dirname(realpath($_SERVER["SCRIPT_NAME"])));
 
-echo 1;
-
 require_once("zabber.class.php");
 require_once("zabberex.class.php");
 require_once("mysqlite.class.php");
-echo 2;
 
 /*
  * Connect to Google Talk Server
  */
 
+$aConfig = require __DIR__ . '/config.inc.php';
+
 $oBot = new ZabberEx();
 $oBot->sHost     = "chat.hipchat.com";
-$oBot->sUser     = "";
-$oBot->sPassword = "";
+$oBot->sUser     = $aConfig['user'];
+$oBot->sPassword = $aConfig['password'];
 $oBot->sStatus   = "Zabber Ex Demo - Input \"help\" to get help information";
 $oBot->run();

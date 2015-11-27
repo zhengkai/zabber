@@ -1,3 +1,10 @@
 /legacy/log*
+/legacy/config.inc.php
 /legacy/last_xml.txt
 /vendor/
+/config.inc.php
+/last_fail_packet.txt
+/log_stream.txt
+/last.json
+/last.xml
+/unknown_data.json

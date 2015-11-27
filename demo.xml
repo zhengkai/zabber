@@ -1,0 +1,9 @@
+<a t="a">
+	<b t="b">foo</b>
+	<f>bar</f>
+	<c></c>
+	<d>
+		<da t='c'>da</da>
+		<db></db>
+	</d>
+</a>

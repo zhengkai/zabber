@@ -1,3 +1,4 @@
+#! /usr/bin/env php
 <?php
 require_once __DIR__ . '/bootstrap.php';
 
@@ -11,4 +12,10 @@ $s = '<stream:stream xmlns:stream="http://etherx.jabber.org/streams" xmlns="jabb
   </stream:features>
 </stream:stream>';
 
-echo XMLUtil::pretty($s);
+$s = file_get_contents(__DIR__ . '/demo.xml');
+
+echo $s = XMLUtil::pretty($s);
+
+print_r(XMLUtil::getPrettyError());
+
+print_r(XMLUtil::toArray($s));

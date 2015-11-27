@@ -138,15 +138,8 @@ class Zabber {
 				$aMechanism[] = $aRow["#"];
 			}
 
-			print_r($aMechanism);
-			echo "\n";
-			echo $this->sUser;
-			echo "\n";
-
 			switch (TRUE) {
 				case in_array("DIGEST-MD5", $aMechanism):
-
-					echo 'md5 password';
 
 					$sAuth = "<iq type=\"set\" id=\"".$this->_getUniqueID()."\"><query xmlns=\"jabber:iq:auth\">"
 						."<username>".$this->sUser."</username>"
@@ -155,8 +148,6 @@ class Zabber {
 						."</query></iq>";
 					break;
 				case in_array("PLAIN", $aMechanism):
-
-					echo 'plain password';
 
 					$sAuth = "<auth xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\" mechanism=\"PLAIN\" >"
 						.base64_encode(chr(0).$this->sUser.chr(0).$this->sPassword)
@@ -292,9 +283,9 @@ class Zabber {
 		$this->_bAuth = TRUE;
 		$this->_sendServiceDiscovery();
 		$this->_sendIqGet("version");
-		$this->_sendIqGet("browse");
-		$this->_sendIqGet("roster");
-		$this->_sendSetStatus($this->sStatus);
+	//	$this->_sendIqGet("browse");
+	//	$this->_sendIqGet("roster");
+	//	$this->_sendSetStatus($this->sStatus);
 	}
 
 	/*
@@ -421,7 +412,7 @@ class Zabber {
 		if (empty($this->_hLogWork)) {
 			$this->_hLogWork = fopen("log.txt", "ab");
 		}
-		fwrite($this->_hLogWork, "\n - ".date("H:i:s")." - ".$sMessage."\n");
+		fwrite($this->_hLogWork,
 	}
 
 	// pocket log,
