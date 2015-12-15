@@ -14,16 +14,21 @@ class Zabber {
 	public $sUser = '';
 	public $sPassword = '';
 
+	public $sJID;
+
 	protected $_iStreamID;
 
 	public $sHostTo = '';
 
 	public $sLogPath = '/tmp';
 
+	protected $_bWork;
+
 	const METHOD_MAP = [
 		'stream:stream',
 		'proceed',
 		'success',
+		'iq',
 	];
 
 	public function run() {
@@ -42,7 +47,7 @@ class Zabber {
 				return FALSE;
 			}
 			if (!$aData) {
-				echo 'empty ';
+				echo 'empty ', intval($this->_bWork), "\n";
 				continue;
 			}
 

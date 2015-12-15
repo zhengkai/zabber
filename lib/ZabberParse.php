@@ -2,6 +2,8 @@
 trait ZabberParse {
 
 	protected $_iUniqueID = 0;
+	protected $_aXMLChar    = ['&', '<', '>', ']'];
+	protected $_aXMLCharOut;
 
 	protected function _parseStream($aData) {
 
@@ -85,6 +87,17 @@ trait ZabberParse {
 			return TRUE;
 		}
 
+		if (isset($aFeature['bind'])) {
+
+			$this->_send('<iq type="set" id="' . $this->_getUniqueID() . '">'
+				. '<bind xmlns="urn:ietf:params:xml:ns:xmpp-bind">'
+				. '<resource>' . $this->sResource . '</resource>'
+				. '</bind></iq>');
+			return TRUE;
+		}
+
+		var_dump($aFeature);
+
 		return FALSE;
 	}
 
@@ -120,5 +133,48 @@ trait ZabberParse {
 	protected function _getUniqueID($sType = null) {
 		$this->_iUniqueID++;
 		return $this->_iUniqueID;
+	}
+
+	protected function _parseIq($aData) {
+
+		echo __METHOD__, "\n";
+
+		if (isset($aData['#']['bind'])) {
+			$this->_eventBind($aData['#']['bind'][0]['#']['jid'][0]['#']);
+			return TRUE;
+		}
+
+		echo __METHOD__, ' fail', "\n";
+	}
+
+	protected function _sendIqGet($sType) {
+		$this->_send('<iq type="get" id="' . $this->_getUniqueID() . '">'
+			. '<query xmlns="jabber:iq:'.$sType.'"/></iq>');
+	}
+
+	protected function _eventBind(string $sJID) {
+		if (!$sJID) {
+			throw new Exception('empty jid');
+		}
+		$this->_log("Login Over, JID = ".$sJID);
+		$this->sJID = $sJID;
+		$this->_sendIqGet('version');
+	}
+
+	protected function _sendMessage($sTo, $sContent) {
+		$sXML = '<message type="chat" from="' . $this->sJID . '" to="' . $sTo . '">'
+			. '<body>'.$this->_xmlOut($sContent).'</body>'
+			. '</message>';
+		$this->_send($sXML);
+	}
+
+	protected function _xmlOut($sContent) {
+		if (!$this->_aXMLCharOut) {
+			foreach ($this->_aXMLChar as $sChar) {
+				$this->_aXMLCharOut[] = '&#'.sprintf('%02d', ord($sChar)).';';
+			}
+		}
+		$sContent = str_replace($this->_aXMLChar, $this->_aXMLCharOut, $sContent);
+		return $sContent;
 	}
 }
