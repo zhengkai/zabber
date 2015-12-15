@@ -266,7 +266,7 @@ class Zabber {
 	protected function _eventMessage($sFrom, $sContent, $bOffline = FALSE) {
 		$this->_log("Message ".($bOffline ? "(Offline)" : "")."from ".$sFrom.": ".$sContent);
 		if ($bOffline) {
-			continue;
+			return;
 		}
 		// $sReply = $bOffline ? "Offline Message Received." : "Got It.";
 		$sReply = "Got It. " . strlen($sContent);
@@ -372,7 +372,6 @@ class Zabber {
 	// Receive Pocket, and cover XML to Array
 	protected function _receive() {
 
-		set_magic_quotes_runtime(0);
 		$sReturn = "";
 		for ($i = 0; $i < 100; $i++) {
 			$sRead = fread($this->_hStream, 1048576);
@@ -381,7 +380,6 @@ class Zabber {
 			}
 			$sReturn .= $sRead;
 		}
-		set_magic_quotes_runtime(get_magic_quotes_runtime());
 		$sReturn = trim($sReturn);
 
 		if (empty($sReturn)) {
@@ -412,7 +410,7 @@ class Zabber {
 		if (empty($this->_hLogWork)) {
 			$this->_hLogWork = fopen("log.txt", "ab");
 		}
-		fwrite($this->_hLogWork,
+		fwrite($this->_hLogWork, $sMessage);
 	}
 
 	// pocket log,

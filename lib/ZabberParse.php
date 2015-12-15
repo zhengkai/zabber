@@ -50,14 +50,14 @@ trait ZabberParse {
 
 		if (isset($aFeature['mechanisms'])) {
 
-			$this->_log("Authenticating ...");
+			$this->_log('Authenticating ...');
 
 			$lMechanism = array_column($aFeature['mechanisms']['#']['mechanism'], '#');
 
 			$sAuth = '';
 			switch (TRUE) {
 
-				case in_array("DIGEST-MD5", $lMechanism):
+				case in_array('DIGEST-MD5', $lMechanism):
 
 					$sAuth = '<iq type="set" id="' . $this->_getUniqueID() . '"><query xmlns="jabber:iq:auth">'
 						. '<username>' . $this->sUser . '</username>'
@@ -101,6 +101,16 @@ trait ZabberParse {
 		return FALSE;
 	}
 
+	protected function _sendServiceDiscovery() {
+		$this->_send('<iq type="get" to="' . $this->sHostTo . '">'
+			. '<query xmlns="http://jabber.org/protocol/disco#info"/>'
+			. '</iq>');
+	}
+
+	protected function _parsePresence($aData) {
+		return TRUE;
+	}
+
 	protected function _parseProceed($aData) {
 
 		$sNS = 'urn:ietf:params:xml:ns:xmpp-tls';
@@ -137,14 +147,13 @@ trait ZabberParse {
 
 	protected function _parseIq($aData) {
 
-		echo __METHOD__, "\n";
-
 		if (isset($aData['#']['bind'])) {
-			$this->_eventBind($aData['#']['bind'][0]['#']['jid'][0]['#']);
+			$this->_eventBind($aData['#']['bind']['#']['jid']['#']);
 			return TRUE;
 		}
 
-		echo __METHOD__, ' fail', "\n";
+		$this->_log('unknown iq, ignore');
+		return TRUE;
 	}
 
 	protected function _sendIqGet($sType) {
@@ -156,16 +165,10 @@ trait ZabberParse {
 		if (!$sJID) {
 			throw new Exception('empty jid');
 		}
-		$this->_log("Login Over, JID = ".$sJID);
+		$this->_log('Login Over, JID = '.$sJID);
 		$this->sJID = $sJID;
-		$this->_sendIqGet('version');
-	}
-
-	protected function _sendMessage($sTo, $sContent) {
-		$sXML = '<message type="chat" from="' . $this->sJID . '" to="' . $sTo . '">'
-			. '<body>'.$this->_xmlOut($sContent).'</body>'
-			. '</message>';
-		$this->_send($sXML);
+		$this->_sendServiceDiscovery();
+		// $this->_sendIqGet('version');
 	}
 
 	protected function _xmlOut($sContent) {

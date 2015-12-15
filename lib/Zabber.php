@@ -2,6 +2,7 @@
 class Zabber {
 
 	use ZabberParse;
+	use ZabberTalk;
 
 	const CONNECT_TIMEOUT = 20;
 	protected $_iStartTime  = 0;
@@ -17,6 +18,7 @@ class Zabber {
 	public $sJID;
 
 	protected $_iStreamID;
+	public $sResource = 'Zabber';
 
 	public $sHostTo = '';
 
@@ -29,6 +31,8 @@ class Zabber {
 		'proceed',
 		'success',
 		'iq',
+		'message',
+		'presence',
 	];
 
 	public function run() {
@@ -38,16 +42,14 @@ class Zabber {
 		}
 
 		while (TRUE) {
-			sleep(1);
-
-			echo 'loop', "\n";
+			usleep(1);
 
 			$aData = $this->_receive();
 			if ($aData === FALSE) {
 				return FALSE;
 			}
 			if (!$aData) {
-				echo 'empty ', intval($this->_bWork), "\n";
+				// echo 'empty ', intval($this->_bWork), "\n";
 				continue;
 			}
 
@@ -83,11 +85,11 @@ class Zabber {
 
 		if ($this->_hStream) {
 
-			$this->_log("ReConnecting");
+			$this->_log('ReConnecting');
 
 		} else {
 
-			$this->_log("Connecting");
+			$this->_log('Connecting');
 
 			$this->_hStream = fsockopen(
 				$this->sHost,
@@ -108,7 +110,7 @@ class Zabber {
 			stream_set_timeout($this->_hStream, 3600);
 		}
 
-		$this->_send("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+		$this->_send('<?xml version="1.0" encoding="UTF-8" ?>');
 		$this->_sendStream();
 
 		return TRUE;
@@ -130,7 +132,15 @@ class Zabber {
 
 		$sReturn = '';
 		for ($i = 0; $i < 1024; $i++) {
-			$sRead = fread($this->_hStream, 10240);
+			$sRead = @fread($this->_hStream, 10240);
+			if (!is_string($sRead)) {
+
+				$this->_log('disconnected, reconnecting');
+
+				$this->_hStream = FALSE;
+				$this->_connect();
+				return;
+			}
 			if (empty($sRead)) {
 				break;
 			}
@@ -156,9 +166,7 @@ class Zabber {
 	}
 
 	protected function _log($sMessage) {
-		echo "\n";
-		echo date("H:i:s"), ' - ', $sMessage;
-		echo "\n";
+		echo "\n", date('H:i:s'), ' - ', $sMessage, "\n";
 	}
 
 	protected function _logPocket($sMessage, $bSend = TRUE) {
