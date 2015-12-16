@@ -6,6 +6,7 @@ class Zabber {
 
 	const CONNECT_TIMEOUT = 20;
 	protected $_iStartTime  = 0;
+	protected $_iSendTime;
 
 	protected $_hStream    = null;
 
@@ -24,6 +25,10 @@ class Zabber {
 
 	public $sLogPath = '/tmp';
 
+	public $lGroup = [
+		'283876_bot_dev@conf.hipchat.com',
+	];
+
 	protected $_bWork;
 
 	const METHOD_MAP = [
@@ -36,10 +41,13 @@ class Zabber {
 	];
 
 	public function run() {
+
 		$this->_iStartTime = time();
 		if (!$this->_connect()) {
 			return;
 		}
+
+		$this->_iSendTime = time();
 
 		while (TRUE) {
 			usleep(1);
@@ -48,10 +56,18 @@ class Zabber {
 			if ($aData === FALSE) {
 				return FALSE;
 			}
+
 			if (!$aData) {
-				// echo 'empty ', intval($this->_bWork), "\n";
+				$iDiff = time() - $this->_iSendTime;
+				if ($iDiff > 60) {
+					// keep alive
+					// https://confluence.atlassian.com/pages/viewpage.action?pageId=751436251
+					$this->_send(' ');
+					$iReceiveTime = time();
+				}
 				continue;
 			}
+			$iReceiveTime = time();
 
 			$bGot = FALSE;
 			foreach (self::METHOD_MAP as $sKeyword) {
@@ -125,23 +141,25 @@ class Zabber {
 
 	protected function _send($sData) {
 		$this->_logPocket($sData, TRUE);
+		$this->_iSendTime = time();
 		return fwrite($this->_hStream, $sData . "\n");
 	}
 
 	protected function _receive() {
 
 		$sReturn = '';
+
+		error_clear_last();
 		for ($i = 0; $i < 1024; $i++) {
-			$sRead = @fread($this->_hStream, 10240);
-			if (!is_string($sRead)) {
-
-				$this->_log('disconnected, reconnecting');
-
-				$this->_hStream = FALSE;
-				$this->_connect();
-				return;
-			}
-			if (empty($sRead)) {
+			$sRead = fread($this->_hStream, 10240);
+			if (!$sRead) {
+				$aError = error_get_last();
+				if ($aError && strpos($aError['message'], 'Connection reset by peer') !== FALSE) {
+					$this->_log('disconnected, reconnecting');
+					$this->_hStream = FALSE;
+					$this->_connect();
+					return;
+				}
 				break;
 			}
 			$sReturn .= $sRead;

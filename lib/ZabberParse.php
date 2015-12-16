@@ -27,8 +27,6 @@ trait ZabberParse {
 		$sKey = 'stream:features';
 		$aFeature =& $aData['#'][$sKey]['#'];
 
-		echo "\n\n $sKey \n\n";
-
 		if (!$aFeature) {
 			$this->_log('Error: no "' . $sKey . '"');
 			exit;

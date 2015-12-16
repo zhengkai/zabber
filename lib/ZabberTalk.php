@@ -5,7 +5,7 @@ trait ZabberTalk {
 		$sFrom =& $aData['@']['from'];
 		$sMessage =& $aData['#']['body']['#'];
 		if (!$sMessage) {
-			$this->_log('empty message, ignore');
+			// $this->_log('empty message, ignore');
 			return TRUE;
 		}
 
