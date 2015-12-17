@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker exec -i -t php php /www/zabber/run.php
+sudo docker exec php php /www/zabber/run.php
